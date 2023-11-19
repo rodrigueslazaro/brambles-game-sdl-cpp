@@ -11,14 +11,14 @@ public:
     Actor(class Game* game);
     virtual ~Actor();
 
-    void Update(float delta_time);
-    void UpdateComponents(float delta_time);
-    virtual void UpdateActor(float delta_time);
+    void update(float delta_time);
+    void updateComponents(float delta_time);
+    virtual void updateActor(float delta_time);
 
-    void setState(State state);
+    // void setState(State state);
     State getState();
-    void setPosition(Vector2 position);
-    Vector2 getPosition();
+    // void setPosition(Vector2 position);
+    // Vector2 getPosition();
 
 
     void AddComponent(class Component* component);
