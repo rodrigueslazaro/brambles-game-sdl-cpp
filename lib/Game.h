@@ -14,6 +14,16 @@ public:
 
     void addActor(class Actor* actor);
     void removeActor(class Actor* actor);
+   	const std::vector<class Actor*>& GetActors() const { return actors; }
+
+	enum GameState {
+		is_playing,
+		is_paused,
+		is_quit
+	};
+	
+	GameState GetState() const { return game_state; }
+	void SetState(GameState state) { game_state = state; }
 
     void addSprite(class SpriteComponent* sprite);
     void removeSprite(class SpriteComponent* sprite);
@@ -31,6 +41,7 @@ private:
     bool is_running;
     bool is_updating_actors;
     Uint32 ticks_count;
+    GameState game_state;
 
     std::unordered_map<std::string, SDL_Texture*> textures;
     std::vector<class SpriteComponent*> sprites;

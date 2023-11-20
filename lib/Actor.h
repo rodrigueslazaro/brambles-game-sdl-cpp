@@ -4,6 +4,13 @@
 
 class Actor {
 public:
+	enum TypeID {
+		TActor = 0,
+		NUM_ACTOR_TYPES
+	};
+
+	static const char* TypeNames[NUM_ACTOR_TYPES];
+
     enum State {
         is_active,
         is_paused,
@@ -28,6 +35,39 @@ public:
     void removeComponent(class Component* component);
 
     Vector2 GetForward() const { return Vector2(Math::Cos(rotation), -Math::Sin(rotation)); }
+
+   	virtual void LoadProperties(const rapidjson::Value& inObj);
+	virtual void SaveProperties(rapidjson::Document::AllocatorType& alloc,
+		rapidjson::Value& inObj) const;
+
+ 	template <typename T>
+	static Actor* Create(class Game* game, const rapidjson::Value& inObj)
+	{
+		// Dynamically allocate actor of type T
+		T* t = new T(game);
+		// Call LoadProperties on new actor
+		t->LoadProperties(inObj);
+		return t;
+	}
+    // Search through component vector for one of type
+	Component* GetComponentOfType(Component::TypeID type)
+	{
+		Component* comp = nullptr;
+		for (Component* c : components)
+		{
+			if (c->GetType() == type)
+			{
+				comp = c;
+				break;
+			}
+		}
+		return comp;
+	}
+
+	virtual TypeID GetType() const { return TActor; }
+   	const std::vector<Component*>& GetComponents() const { return components; }
+	void SetState(State state) { this->state = state; }
+
 private:
     State state;
 

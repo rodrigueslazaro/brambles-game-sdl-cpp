@@ -13,6 +13,8 @@ public:
     int getDrawOrder() const {return draw_order;}
     int getTextureHeight() const {return texture_height;}
     int getTextureWidth() const {return texture_width;}
+
+   	TypeID GetType() const override { return TSpriteComponent; }
 private:
     SDL_Texture* texture;
     int draw_order;

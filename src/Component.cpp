@@ -1,5 +1,6 @@
 #include "Component.h"
 #include "Actor.h"
+#include "LevelLoader.h"
 
 Component::Component(Actor* owner, int update_order)
 	:owner(owner)
@@ -15,3 +16,13 @@ Component::~Component()
 }
 
 void Component::update(float delta_time) { }
+
+void Component::LoadProperties(const rapidjson::Value& inObj)
+{
+	JsonHelper::GetInt(inObj, "updateOrder", update_order);
+}
+
+void Component::SaveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj) const
+{
+	JsonHelper::AddInt(alloc, inObj, "updateOrder", update_order);
+}

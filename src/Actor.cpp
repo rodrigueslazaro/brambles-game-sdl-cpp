@@ -1,7 +1,12 @@
 #include "Actor.h"
 #include "Game.h"
 #include "Component.h"
+#include "LevelLoader.h"
 #include <algorithm>
+
+const char* Actor::TypeNames[NUM_ACTOR_TYPES] = {
+	"Actor",
+};
 
 Actor::Actor(Game* game)
 	:state(is_active)
@@ -52,4 +57,48 @@ void Actor::removeComponent(Component* component) {
 	auto iter = std::find(components.begin(), components.end(), component);
 	if (iter != components.end())
 		components.erase(iter);
+}
+
+void Actor::LoadProperties(const rapidjson::Value& inObj)
+{
+	// Use strings for different states
+	std::string s;
+	if (JsonHelper::GetString(inObj, "state", s))
+	{
+		if (s == "active")
+		{
+			SetState(is_active);
+		}
+		else if (s == "paused")
+		{
+			SetState(is_paused);
+		}
+		else if (s == "dead")
+		{
+			SetState(is_dead);
+		}
+	}
+
+	// Load position, rotation, and scale, and compute transform
+	JsonHelper::GetVector2(inObj, "position", position);
+	JsonHelper::GetFloat(inObj, "rotation", rotation);
+	JsonHelper::GetFloat(inObj, "scale", scale);
+}
+
+void Actor::SaveProperties(rapidjson::Document::AllocatorType& alloc, rapidjson::Value& inObj) const
+{
+	std::string s = "active";
+	if (state == is_paused)
+	{
+		s = "paused";
+	}
+	else if (state == is_dead)
+	{
+		s = "dead";
+	}
+
+	JsonHelper::AddString(alloc, inObj, "state", s);
+	JsonHelper::AddVector2(alloc, inObj, "position", position);
+	JsonHelper::AddFloat(alloc, inObj, "rotation", rotation);
+	JsonHelper::AddFloat(alloc, inObj, "scale", scale);
 }
