@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include "Math.h"
 
@@ -15,19 +16,23 @@ public:
     void updateComponents(float delta_time);
     virtual void updateActor(float delta_time);
 
-    // void setState(State state);
-    State getState();
-    // void setPosition(Vector2 position);
-    // Vector2 getPosition();
+    void setPosition(const Vector2& pos) { position = pos; }
+    const Vector2& getPosition() const { return position; }
+    State getState() {return state;}
+    void setScale(float s) { scale = s; }
+    float getScale() {return scale;}
+    float getRotation() {return rotation;}
+    class Game* getGame() {return game;}
 
-
-    void AddComponent(class Component* component);
-    void RemoveComponent(class Component* component);
+    void addComponent(class Component* component);
+    void removeComponent(class Component* component);
 private:
     State state;
+
     Vector2 position;
     float scale;
     float rotation;
+
     std::vector<class Component*> components;
     class Game* game;
 };

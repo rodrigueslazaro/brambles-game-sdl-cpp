@@ -1,12 +1,24 @@
 #include "Game.h"
+#include <SDL2/SDL_image.h>
+#include <algorithm>
+#include "Actor.h"
+#include "SpriteComponent.h"
+#include "Player.h"
+#include "BGSpriteComponent.h"
 
-Game::Game() {
-    is_running = true;
-    ticks_count = 0;
-}
+Game::Game()
+:window(nullptr)
+,renderer(nullptr)
+,is_running(true)
+,is_updating_actors(false)
+{}
 
 bool Game::initialize() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        SDL_Log ("Unable to initialize SDL: %s", SDL_GetError());
+        return false;
+    }
+    if (IMG_Init(IMG_INIT_PNG == 0)) {
         SDL_Log ("Unable to initialize SDL: %s", SDL_GetError());
         return false;
     }
@@ -14,8 +26,8 @@ bool Game::initialize() {
         "Gamedev in C++!",
         100,
         100,
-        1280,
-        720,
+        1024,
+        768,
         0
     );
     if (!window) {
@@ -31,10 +43,27 @@ bool Game::initialize() {
         SDL_Log("Unable to create renderer: %s", SDL_GetError());
         return false;
     }
+
+    loadData();
+
+    ticks_count = SDL_GetTicks();
+
     return true;
 }
 
+
+void Game::unloadData() {
+	while (!actors.empty())
+		delete actors.back();
+	for (auto i : textures)
+		SDL_DestroyTexture(i.second);
+	textures.clear();
+}
+
 void Game::shutdown() {
+    unloadData();
+    IMG_Quit();
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
@@ -66,23 +95,44 @@ void Game::updateGame() {
 
     for (auto actor : dead_actors)
         delete actor;
-
-    
-
-
 }
 
 void Game::generateOutput() {
-    SDL_SetRenderDrawColor (
-        renderer,
-        150,
-        100,
-        100,
-        255
-    );
+    SDL_SetRenderDrawColor ( renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    SDL_RenderPresent(renderer);
 
+    for (auto sprite : sprites)
+        sprite->draw(renderer);
+
+    SDL_RenderPresent(renderer);
+}
+
+void Game::loadData() {
+	player = new Player(this);
+	player->setPosition(Vector2(100.0f, 384.0f));
+	player->setScale(1.5f);
+
+	// Create actor for the background (this doesn't need a subclass)
+	Actor* temp = new Actor(this);
+	temp->setPosition(Vector2(512.0f, 384.0f));
+	// Create the "far back" background
+	BGSpriteComponent* bg = new BGSpriteComponent(temp);
+	bg->setScreenSize(Vector2(1024.0f, 768.0f));
+	std::vector<SDL_Texture*> bgtexs = {
+		getTexture("img/sky.png"),
+		getTexture("img/forest.png")
+	};
+	bg->setBGTextures(bgtexs);
+	bg->setScrollSpeed(-100.0f);
+	// Create the closer background
+	bg = new BGSpriteComponent(temp, 50);
+	bg->setScreenSize(Vector2(1024.0f, 768.0f));
+	bgtexs = {
+		getTexture("img/field.png"),
+		getTexture("img/field.png")
+	};
+	bg->setBGTextures(bgtexs);
+	bg->setScrollSpeed(-200.0f);
 }
 
 void Game::runLoop() {
@@ -106,6 +156,7 @@ void Game::processInput() {
     if (state[SDL_SCANCODE_ESCAPE]) {
         is_running = false;
     }
+    player->processKeyboard(state);
 }
 
 void Game::addActor(Actor* actor) {
@@ -127,4 +178,44 @@ void Game::removeActor(Actor* actor) {
 		std::iter_swap(iter, actors.end() - 1);
 		actors.pop_back();
 	}
+}
+
+SDL_Texture* Game::getTexture(const std::string& file_name) {
+	SDL_Texture* texture = nullptr;
+	// Is the texture already in the map?
+	auto i = textures.find(file_name);
+	if (i != textures.end()) {
+		texture = i->second;
+	} else {
+		SDL_Surface* surface = IMG_Load(file_name.c_str());
+		if (!surface) {
+			SDL_Log("Failed to load texture file %s", file_name.c_str());
+			return nullptr;
+		}
+		texture = SDL_CreateTextureFromSurface(renderer, surface);
+		SDL_FreeSurface(surface);
+		if (!texture) {
+			SDL_Log("Failed to convert surface to texture for %s", file_name.c_str());
+			return nullptr;
+		}
+
+		textures.emplace(file_name.c_str(), texture);
+	}
+	return texture;
+}
+
+// ask gepeto, maybe optimize
+void Game::addSprite(SpriteComponent* sprite) {
+    int draw_order = sprite->getDrawOrder();
+    auto i = sprites.begin();
+    for (; i != sprites.end(); ++i)
+        if (draw_order < (*i)->getDrawOrder())
+            break;
+    sprites.insert(i, sprite);
+}
+
+void Game::removeSprite(SpriteComponent* sprite) {
+	// (We can't swap because it ruins ordering)
+	auto iter = std::find(sprites.begin(), sprites.end(), sprite);
+	sprites.erase(iter);
 }
