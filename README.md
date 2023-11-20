@@ -1,5 +1,5 @@
-# Game Engine in C++
+# Brambles - Witch Hunt
 
-Creating my first game engine.
+Fight the Bee Witch and save Bina's village!
 
 - TODO add enemies

@@ -26,6 +26,8 @@ public:
 
     void addComponent(class Component* component);
     void removeComponent(class Component* component);
+
+    Vector2 GetForward() const { return Vector2(Math::Cos(rotation), -Math::Sin(rotation)); }
 private:
     State state;
 
