@@ -19,7 +19,7 @@ std::unordered_map<std::string, ActorFunc> LevelLoader::sActorFactoryMap
 
 std::unordered_map<std::string, std::pair<int, ComponentFunc>> LevelLoader::sComponentFactoryMap
 {
-	{ "SpriteComponent", { Component::SpriteComponent, &Component::Create<SpriteComponent> } },
+	{ "SpriteComponent", { Component::TSpriteComponent, &Component::Create<SpriteComponent> } },
 };
 
 bool LevelLoader::LoadLevel(Game* game, const std::string& fileName)
@@ -40,11 +40,11 @@ bool LevelLoader::LoadLevel(Game* game, const std::string& fileName)
 	}
 
 	// Handle any global properties
-	const rapidjson::Value& globals = doc["globalProperties"];
-	if (globals.IsObject())
-	{
-		LoadGlobalProperties(game, globals);
-	}
+	// const rapidjson::Value& globals = doc["globalProperties"];
+	// if (globals.IsObject())
+	// {
+	// 	LoadGlobalProperties(game, globals);
+	// }
 
 	// Handle any actors
 	const rapidjson::Value& actors = doc["actors"];
@@ -97,9 +97,9 @@ void LevelLoader::SaveLevel(Game* game, const std::string& fileName)
 	JsonHelper::AddInt(doc.GetAllocator(), doc, "version", LevelVersion);
 
 	// Globals
-	rapidjson::Value globals(rapidjson::kObjectType);
-	SaveGlobalProperties(doc.GetAllocator(), game, globals);
-	doc.AddMember("globalProperties", globals, doc.GetAllocator());
+	// rapidjson::Value globals(rapidjson::kObjectType);
+	// SaveGlobalProperties(doc.GetAllocator(), game, globals);
+	// doc.AddMember("globalProperties", globals, doc.GetAllocator());
 
 	// Actors
 	rapidjson::Value actors(rapidjson::kArrayType);

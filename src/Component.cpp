@@ -15,6 +15,11 @@ Component::~Component()
 	owner->removeComponent(this);
 }
 
+const char* Component::TypeNames[NUM_COMPONENT_TYPES] = {
+	"Component",
+	"SpriteComponent",
+};
+
 void Component::update(float delta_time) { }
 
 void Component::LoadProperties(const rapidjson::Value& inObj)

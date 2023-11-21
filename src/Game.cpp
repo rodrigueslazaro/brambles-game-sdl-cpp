@@ -3,8 +3,9 @@
 #include <algorithm>
 #include "Actor.h"
 #include "SpriteComponent.h"
-#include "Player.h"
+#include "PlayerActor.h"
 #include "BGSpriteComponent.h"
+#include "LevelLoader.h"
 
 Game::Game()
 :window(nullptr)
@@ -108,31 +109,50 @@ void Game::generateOutput() {
 }
 
 void Game::loadData() {
-	player = new Player(this);
+   	// Load English text
+	loadText("txt/english.gptext");
+	// Create HUD
+	// mHUD = new HUD(this);
+
+	// Load the level from file
+	// LevelLoader::LoadLevel(this, "ast/level1.gplevel");
+	
+	// Start music
+	// mMusicEvent = mAudioSystem->PlayEvent("event:/Music");
+
+	// Enable relative mouse mode for camera look
+	// SDL_SetRelativeMouseMode(SDL_TRUE);
+	// // Make an initial call to get relative to clear out
+	// SDL_GetRelativeMouseState(nullptr, nullptr);
+
+
+
+
+	player = new PlayerActor(this);
 	player->setPosition(Vector2(100.0f, 384.0f));
 	player->setScale(1.5f);
 
-	// Create actor for the background (this doesn't need a subclass)
-	Actor* temp = new Actor(this);
-	temp->setPosition(Vector2(512.0f, 384.0f));
-	// Create the "far back" background
-	BGSpriteComponent* bg = new BGSpriteComponent(temp);
-	bg->setScreenSize(Vector2(1024.0f, 768.0f));
-	std::vector<SDL_Texture*> bgtexs = {
-		getTexture("img/sky.png"),
-		getTexture("img/forest.png")
-	};
-	bg->setBGTextures(bgtexs);
-	bg->setScrollSpeed(-100.0f);
-	// Create the closer background
-	bg = new BGSpriteComponent(temp, 50);
-	bg->setScreenSize(Vector2(1024.0f, 768.0f));
-	bgtexs = {
-		getTexture("img/field.png"),
-		getTexture("img/field.png")
-	};
-	bg->setBGTextures(bgtexs);
-	bg->setScrollSpeed(-200.0f);
+	// // Create actor for the background (this doesn't need a subclass)
+	// Actor* temp = new Actor(this);
+	// temp->setPosition(Vector2(512.0f, 384.0f));
+	// // Create the "far back" background
+	// BGSpriteComponent* bg = new BGSpriteComponent(temp);
+	// bg->setScreenSize(Vector2(1024.0f, 768.0f));
+	// std::vector<SDL_Texture*> bgtexs = {
+	// 	getTexture("img/sky.png"),
+	// 	getTexture("img/forest.png")
+	// };
+	// bg->setBGTextures(bgtexs);
+	// bg->setScrollSpeed(-100.0f);
+	// // Create the closer background
+	// bg = new BGSpriteComponent(temp, 50);
+	// bg->setScreenSize(Vector2(1024.0f, 768.0f));
+	// bgtexs = {
+	// 	getTexture("img/field.png"),
+	// 	getTexture("img/field.png")
+	// };
+	// bg->setBGTextures(bgtexs);
+	// bg->setScrollSpeed(-200.0f);
 }
 
 void Game::runLoop() {
@@ -218,4 +238,42 @@ void Game::removeSprite(SpriteComponent* sprite) {
 	// (We can't swap because it ruins ordering)
 	auto iter = std::find(sprites.begin(), sprites.end(), sprite);
 	sprites.erase(iter);
+}
+
+void Game::loadText(const std::string& file_name) {
+	// Clear the existing map, if already loaded
+	text.clear();
+
+	rapidjson::Document doc;
+	if (!LevelLoader::LoadJSON(file_name, doc)) {
+		SDL_Log("Failed to load text file %s", file_name.c_str());
+		return;
+	}
+
+	// Parse the text map
+	const rapidjson::Value& actions = doc["TextMap"];
+	for (rapidjson::Value::ConstMemberIterator itr = actions.MemberBegin();
+		itr != actions.MemberEnd(); ++itr)
+	{
+		if (itr->name.IsString() && itr->value.IsString())
+		{
+			text.emplace(itr->name.GetString(),
+				itr->value.GetString());
+		}
+	}
+}
+
+const std::string& Game::getText(const std::string& key)
+{
+	static std::string errorMsg("**KEY NOT FOUND**");
+	// Find this text in the map, if it exists
+	auto iter = text.find(key);
+	if (iter != text.end())
+	{
+		return iter->second;
+	}
+	else
+	{
+		return errorMsg;
+	}
 }

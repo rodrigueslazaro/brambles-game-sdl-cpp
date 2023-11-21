@@ -21,6 +21,9 @@ public:
 		is_paused,
 		is_quit
 	};
+
+   	void loadText(const std::string& file_name);
+	const std::string& getText(const std::string& key);
 	
 	GameState GetState() const { return game_state; }
 	void SetState(GameState state) { game_state = state; }
@@ -36,6 +39,7 @@ private:
     void loadData();
     void unloadData();
 
+	std::unordered_map<std::string, std::string> text;
     SDL_Window* window;
     SDL_Renderer* renderer;
     bool is_running;
@@ -48,5 +52,5 @@ private:
     std::vector<Actor*> actors;
     std::vector<Actor*> pending_actors;
 
-    class Player* player;
+    class PlayerActor* player;
 };

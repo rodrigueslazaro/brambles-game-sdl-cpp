@@ -1,0 +1,12 @@
+{
+	"TextMap":{
+		"PauseTitle": "PAUSADO",
+		"ResumeButton": "Voltar",
+		"QuitButton": "Sair",
+		"QuitText": "Você quer sair?",
+		"OKButton": "SIM",
+		"CancelButton": "NÃO",
+        "NewGame": "Novo Jogo",
+        "LoadGame": "Carregar"
+	}
+} 

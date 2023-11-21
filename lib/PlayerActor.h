@@ -2,9 +2,9 @@
 #include "Actor.h"
 #include <cstdint>
 
-class Player : public Actor {
+class PlayerActor : public Actor {
 public:
-	Player(class Game* game);
+	PlayerActor(class Game* game);
 
 	void updateActor(float delta_time) override;
 	void processKeyboard(const uint8_t* state);

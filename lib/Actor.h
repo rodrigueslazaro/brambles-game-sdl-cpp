@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
+#include <rapidjson/document.h>
 #include "Math.h"
+#include "Component.h"
 
 class Actor {
 public:

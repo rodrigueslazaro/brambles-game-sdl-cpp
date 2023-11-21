@@ -10,7 +10,6 @@ public:
 	};
    	static const char* TypeNames[NUM_COMPONENT_TYPES];
 
-
     Component(class Actor *owner, int updateOrder = 100);
     virtual ~Component();
 

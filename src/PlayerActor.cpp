@@ -1,8 +1,8 @@
-#include "Player.h"
+#include "PlayerActor.h"
 #include "AnimatedSpriteComponent.h"
 #include "Game.h"
 
-Player::Player(Game* game)
+PlayerActor::PlayerActor(Game* game)
 	:Actor(game)
 	,right_speed(0.0f)
 	,down_speed(0.0f)
@@ -18,7 +18,7 @@ Player::Player(Game* game)
 	asc->setAnimationTextures(anims);
 }
 
-void Player::updateActor(float delta_time) {
+void PlayerActor::updateActor(float delta_time) {
 	Actor::updateActor(delta_time);
 	// Update position based on speeds and delta time
 	Vector2 pos = getPosition();
@@ -36,7 +36,7 @@ void Player::updateActor(float delta_time) {
 	setPosition(pos);
 }
 
-void Player::processKeyboard(const uint8_t* state) {
+void PlayerActor::processKeyboard(const uint8_t* state) {
 	right_speed = 0.0f;
 	down_speed = 0.0f;
 	// right/left
